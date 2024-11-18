@@ -305,15 +305,14 @@ list(p1, p2) %>%
 ```
 
 
-# Grafica en ggplot2
+# Graficos en ggplot2
 
-## Graficos en data cruda
+## Data cruda
 
-### Box plot 
-
+### Box plot
 
 ```{r}
-fb %>% 
+p1 <- fb %>% 
   ggplot(data = ., aes(x = geno, y = hi, fill = riego)) +
    geom_boxplot() +
   labs(x = "Genotipos"
@@ -326,12 +325,13 @@ fb %>%
   theme_classic() +
   theme(plot.title = element_text(hjust = 0.5))
 
+p1
 ```
 
-## Diagrama de dispersion 
+## Scater plot
 
 ```{r}
-fb %>% 
+p2 <- fb %>% 
   ggplot(data = .
          , aes(x = twue, y = hi, color = riego)) +
   geom_point() +
@@ -344,11 +344,11 @@ fb %>%
        , caption = "n = 150", 
        ) +
   theme_bw()
-  
+
+p2
 ```
 
-
-## Datos resumiedos
+## Datos resumidos
 
 ```{r}
 modelo <- lm(lfa ~  bloque + riego*geno
@@ -369,15 +369,50 @@ grupos <- tukey_result$groups %>%
 ```
 
 ```{r}
-grupos %>% 
+p3 <- grupos %>% 
   ggplot(data = .
          , aes(x = geno, y = lfa, fill = riego)) +
   geom_col(position = position_dodge2(preserve = "single"))
+
+p3
 ```
 
+```{r}
+library(psych)
 
+p4 <- function() {
+  
+    fb %>% 
+  select_if(is.numeric) %>% 
+  dplyr::select(!c("block")) %>% 
+  pairs.panels(x = .
+               , hist.col="red"
+               , pch = 21
+               , stars = TRUE
+               , scale = FALSE
+               , lm = TRUE
+               ) 
+}
+  
+p4
+```
 
+# Imagenes in grids
 
+```{r}
+library(cowplot)
+
+plot <- list(p1, p2, p3, p4) %>% 
+  plot_grid(plotlist = .
+            , ncol = 2
+            , labels = "auto"
+            )
+
+ggsave2(filename = "plot-01.jpg", units = "cm"
+        , width = 30*2, height = 15*2.5)
+
+include_graphics("plot-01.jpg")
+```
 
 
 
